@@ -1,0 +1,381 @@
+# Prologue Comments:
+# Code Artifact: Calendar, To-Do List, and Daily View UI Definition (Kivy Layout)
+# Brief Description: This KV file defines the layout and structure of the app, including the Calendar, 
+# To-Do List, and Daily View screens. It ensures visual consistency and functionality across the screens.
+# Programmer: Matthew McManness (2210261), Manvir Kaur (3064194), Magaly Camacho (3072618), Mariam Oraby (3127776)
+# Dates Revised:
+#   - October 26, 2024: Initial structure - [Matthew McManness]
+#   - October 27, 2024: Fixed wording on navigation - [Manvir Kaur]
+#   - October 27, 2024: Created To-Do list with a scrollable view and labels - [Manvir Kaur]
+#   - October 27, 2024: Added a spinner for sorting options (Priority, Due Date, Category) and created a red exclamation mark for priority - [Manvir Kaur]
+#   - October 27, 2024: Created a checkbox column and checkboxes for each task and added different sample task items to show what the UI will look like - [Manvir Kaur]
+#   - November 18, 2024: Added Daily View - [Mariam Oraby]
+#   - November 23, 2024: Removed the text setting of lowercase from the sorting spinner - [Manvir Kaur]
+#   - December 6, 2024: Updated styles, colors, and spacing - [Matthew McManness]
+#   - December 7, 2024: Added theme toggle button - [Magaly Camacho]
+#   - December 8, 2024: Theme toggling improved - [Magaly Camacho]
+
+ScreenManager:
+    id: screen_manager
+    CalendarView:
+    ToDoListView:
+    DailyView:
+
+<CalendarView>:
+    name: "calendar"
+    FloatLayout:
+        # Background color
+        canvas.before:
+            Color:
+                rgba: app.Background_Color
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: None, None
+            size: dp(800), dp(600)
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+
+            # Header with title
+            BoxLayout:
+                # Background color
+                canvas.before:
+                    Color:
+                        rgba: app.Title_Background
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                size_hint_y: None
+                height: dp(58)
+                spacing: dp(10)
+                padding: [0, dp(24), 0, dp(24)]  # Add padding on top and bottom
+                Label:
+                    text: "Calendar"
+                    font_size: app.title_font_size
+                    color: app.Title_Color
+
+            # Navigation buttons
+            BoxLayout:
+                size_hint_y: None
+                height: dp(60)
+                spacing: dp(10)
+                padding: [dp(10), dp(10), dp(10), dp(10)]  # Add padding on sides and top
+                UniformButton:
+                    text: "Previous"
+                    on_press: root.change_month(-1)
+                UniformButtonClear:
+                    text: root.month_year_text
+                UniformButton:
+                    text: "Next"
+                    on_press: root.change_month(1)
+
+            # Days of the week header
+            BoxLayout:
+                size_hint_y: None
+                height: dp(30)
+                spacing: dp(2)
+                padding: [dp(5), 0]
+                canvas.before:
+                    Color:
+                        rgba: app.Weekday_Background
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                Label:
+                    text: "Sun"
+                    halign: "center"
+                    color: app.Weekday_Color
+                Label:
+                    text: "Mon"
+                    halign: "center"
+                    color: app.Weekday_Color
+                Label:
+                    text: "Tue"
+                    halign: "center"
+                    color: app.Weekday_Color
+                Label:
+                    text: "Wed"
+                    halign: "center"
+                    color: app.Weekday_Color
+                Label:
+                    text: "Thu"
+                    halign: "center"
+                    color: app.Weekday_Color
+                Label:
+                    text: "Fri"
+                    halign: "center"
+                    color: app.Weekday_Color
+                Label:
+                    text: "Sat"
+                    halign: "center"
+                    color: app.Weekday_Color
+
+            # Calendar grid
+            ScrollView:
+                do_scroll_x: False
+                do_scroll_y: True
+                GridLayout:
+                    id: calendar_grid
+                    cols: 7
+                    spacing: dp(5) # space between cells
+                    padding: [dp(10), dp(8)] # add padding to sides
+                    row_default_height: dp(60)
+                    row_force_default: True
+                    adaptive_height: True
+
+            # Footer with buttons
+            BoxLayout:
+                size_hint_y: None
+                height: dp(50)  # Increased height for padding
+                spacing: dp(10)
+                padding: [dp(10), dp(10), dp(10), dp(10)]  # Add padding
+                UniformButton:
+                    text: "To-Do List"
+                    on_release: app.switch_to_screen("todo")
+                UniformButton:
+                    text: "Add Event"
+                    on_release: app.open_add_event_modal()
+                UniformButton:
+                    text: "Toggle Theme"
+                    on_release: app.toggle_theme()
+
+<ToDoListView>:
+    name: "todo"
+    FloatLayout:
+        # Background color
+        canvas.before:
+            Color:
+                rgba: app.Background_Color  
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: None, None
+            size: dp(800), dp(600)
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+
+            # Header with title
+            BoxLayout:
+                # Background color
+                canvas.before:
+                    Color:
+                        rgba: app.Title_Background
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                size_hint_y: None
+                height: dp(58)
+                spacing: dp(10)
+                padding: [0, dp(24), 0, dp(24)]  # Add padding on top and bottom
+                Label:
+                    text: "To-Do List"
+                    font_size: app.title_font_size
+                    color: app.Title_Color
+
+            # Sort and filter options
+            BoxLayout:
+                size_hint_y: None
+                height: dp(60)
+                spacing: dp(10)
+                padding: [dp(10), dp(10), dp(10), dp(10)]
+                UniformSpinner:
+                    id: filter_spinner
+                    text: "Filter by Priority"
+                    values: ["All", "High", "Medium", "Low", "-"]
+                    on_text: root.filter_tasks(self.text)
+                UniformSpinner:
+                    id: sort_spinner
+                    text: "Sort by"
+                    values: ["Priority", "Due Date", "Category"]
+                    on_text: root.sort_tasks(self.text)
+
+            # Task list
+            ScrollView:
+                GridLayout:
+                    id: task_list
+                    cols: 1
+                    spacing: dp(5)
+                    padding: [dp(10), 0, dp(10), 0]  # Add padding on sides
+                    size_hint_y: None
+                    height: self.minimum_height
+
+            # Footer with buttons
+            BoxLayout:
+                size_hint_y: None
+                height: dp(80)  # Increased height for padding
+                spacing: dp(10)
+                padding: [dp(10), dp(10), dp(10), dp(10)]  # Add vertical padding
+                UniformButton:
+                    text: "Calendar View"
+                    on_release: app.switch_to_screen("calendar")
+                UniformButton:
+                    text: "Add Task"
+                    on_release: app.open_add_task_modal()
+                UniformButton:
+                    text: "Toggle Theme"
+                    on_release: app.toggle_theme()
+
+<DailyView>:
+    name: "daily"
+    FloatLayout:
+        # Background color
+        canvas.before:
+            Color:
+                rgba: app.Background_Color
+            Rectangle:
+                pos: self.pos
+                size: self.size
+
+        BoxLayout:
+            orientation: 'vertical'
+            size_hint: None, None
+            size: dp(800), dp(600)
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            spacing: dp(10)
+
+            # Header with title
+            BoxLayout:
+                # Background color
+                canvas.before:
+                    Color:
+                        rgba: app.Title_Background
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                size_hint_y: None
+                height: dp(58)
+                spacing: dp(10)
+                padding: [0, dp(24), 0, dp(24)]  # Add padding on top and bottom
+                Label:
+                    text: "Daily View"
+                    font_size: app.title_font_size
+                    color: app.Title_Color
+
+            # Date navigation
+            BoxLayout:
+                size_hint_y: None
+                height: dp(60)
+                spacing: dp(10)
+                padding: [dp(10), dp(10), dp(10), dp(10)]  # Add padding on sides
+                UniformButton:
+                    text: "Previous"
+                    on_press: root.navigate_previous_day()  
+                UniformButtonClear:
+                    id: date_label
+                    text: "Date"
+                    halign: "center"
+                    valign: "middle"
+                UniformButton:
+                    text: "Next"
+                    on_press: root.navigate_next_day()
+
+            # Event list
+            ScrollView:
+                GridLayout:
+                    id: event_list
+                    cols: 1
+                    spacing: dp(10)
+                    padding: [dp(10), 0, dp(10), 0]  # Add padding on sides
+                    size_hint_y: None
+                    height: self.minimum_height
+
+            # Footer with buttons
+            BoxLayout:
+                size_hint_y: None
+                height: dp(80)  # Increased height for padding
+                spacing: dp(10)
+                padding: [dp(10), dp(10), dp(10), dp(10)]  # Add vertical padding
+                UniformButton:
+                    text: "Calendar View"
+                    on_release: app.switch_to_screen("calendar")
+                UniformButton:
+                    text: "Add Event"
+                    on_release: app.open_add_event_modal()
+
+<UniformButton@Button>:
+    background_normal: ""
+    background_color: (0, 0, 0, 0)
+    color: app.Button_Text
+    font_size: app.button_font_size
+    padding: [dp(10), dp(10)]
+    size_hint_y: None
+    height: dp(40)
+    canvas.before:
+        Color:
+            rgba: app.Button_Color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [self.height / 2]
+
+<EditButton@UniformButton>:
+    color: app.Edit_Button_Text
+    height: dp(30)
+    font_size: 30
+    size_hint_x: 0.1
+    canvas.before:
+        Color:
+            rgba: app.Edit_Button_Color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [self.height / 2]
+
+<UniformButtonClear@UniformButton>:
+    color: app.Subtitle_Color
+    canvas.before:
+        Color:
+            rgba: app.Background_Color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [self.height / 2]
+
+<EventButton@UniformButton>:
+    color: app.Event_Button_Text
+    height: dp(15)
+    canvas.before:
+        Color:
+            rgba: app.Event_Button
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [self.height / 2]
+
+<UniformSpinner@Spinner>:
+    background_normal: ""
+    background_color: (0, 0, 0, 0)
+    color: (1, 1, 1, 1)
+    font_size: app.button_font_size
+    size_hint_y: None
+    height: dp(40) 
+    padding: [dp(10), dp(10)]
+    canvas.before:
+        Color:
+            rgba: app.Button_Color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [self.height / 2]
+    # Dropdown customization
+    dropdown_cls: '_UniformSpinnerDropdown'
+
+<_UniformSpinnerDropdown@DropDown>:
+    auto_dismiss: True
+    canvas.before:
+        Color:
+            rgba: (0.2, 0.6, 0.8, 1)  # Match spinner background
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(5)]  # Slightly rounded edges
+    Label:
+        color: (1, 1, 1, 1)  # White text for dropdown items
+        font_size: app.button_font_size
+        size_hint_y: None
+        height: app.button_size
+        padding: [dp(10), dp(5)]  # Padding for dropdown text
